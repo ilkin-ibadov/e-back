@@ -38,8 +38,6 @@ router.post("/login", async (req,res)=>{
     const accessToken= generateAccessToken(user);
     const refreshToken=generateRefreshToken(user);
     res.json({accessToken,refreshToken});
-
-
 });
 
 

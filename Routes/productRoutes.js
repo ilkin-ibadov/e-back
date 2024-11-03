@@ -55,7 +55,7 @@ router.post("/add", authenticateAccessToken, isAdmin, async (req, res) => {
         const newPath = path.join('images', fileName)
         const data = fs.readFileSync(tempPath)
 
-        gallery.push(`http://localhost:5000/images/${fileName}`)
+        gallery.push(`http://localhost:5001/images/${fileName}`)
 
         fs.writeFile(newPath, data, (err) => {
           if (err) {
@@ -133,11 +133,36 @@ router.put("/edit/:id", authenticateAccessToken, isAdmin, async (req, res) => {
         deletedImages
       } = fields;
 
-      deletedImages.map(image => {
-        const imgName = image.split("/")
+      const filesToAdd = []
 
-        console.log(imgName)
+      files?.gallery?.map(img => {
+        const extension = img.originalFilename.split(".")[1]
+
+        const tempPath = img.filepath
+        const fileName = `${img.newFilename}.${extension}`
+        const newPath = path.join('images', fileName)
+        const data = fs.readFileSync(tempPath)
+
+        filesToAdd.push(`http://localhost:5001/images/${fileName}`)
+
+        fs.writeFile(newPath, data, (err) => {
+          if (err) {
+            console.error("Error while uploading the image:", err)
+          } else {
+            console.log("Image successfully updated")
+          }
+        })
       })
+
+      if(deletedImages?.length && deletedImages[0] !== ''){
+        deletedImages.map(image => {
+          console.log("Delete run")
+          const imgArr = image.split("/")
+          const imgName = imgArr[imgArr.length - 1]
+  
+          fs.unlinkSync(path.join(__dirname,  '../images', imgName));
+        })
+      }
 
       const updatedProduct = await Products.findByIdAndUpdate(
         req.params.id,
@@ -145,7 +170,7 @@ router.put("/edit/:id", authenticateAccessToken, isAdmin, async (req, res) => {
           title: title[0],
           description: description[0],
           price: price[0],
-          gallery: gallery[0],
+          gallery: [...filesToAdd, ...gallery],
           category: category[0],
           currency: currency[0],
           stock: stock[0],

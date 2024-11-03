@@ -2,26 +2,22 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const userRoutes = require("./Routes/userRoutes");
-const authRoutes = require("./Routes/authRoutes");
-const productRoutes = require("./Routes/productRoutes");
-const orderRoutes = require("./Routes/orderRoutes");
-const basketRoutes = require("./Routes/basketRoutes");
-const formidable = require("formidable");
-const AWS = require("aws-sdk");
-const fs = require("fs");
+const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/authRoutes");
+const productRoutes = require("./routes/productRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+const basketRoutes = require("./routes/basketRoutes");
+const categoryRoutes = require("./routes/categoryRoutes")
 const path = require('path');
 const bodyParser = require("body-parser");
 
 const PRODUCTDB_URL = process.env.CONNECTION_STRING;
 const cluster = require("cluster");
 const os = require("os");
-const parsefile = require("./fileparser");
 const app = express();
 const cpuNum = os.cpus().length;
 const port = 5001;
 app.use(bodyParser.json());
-// in latest body-parser use like below.
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
@@ -49,4 +45,5 @@ app.use("/auth", authRoutes);
 app.use("/products", productRoutes);
 app.use("/orders", orderRoutes);
 app.use("/baskets", basketRoutes);
+app.use("/categories", categoryRoutes)
 app.use('/images', express.static(path.join(__dirname, 'images')));
